@@ -1,0 +1,33 @@
+@import '../bower_components/famous/core/famous.css'
+@import 'css/_sprite'
+
+body
+  background: black
+
+
+.logo
+  position: absolute
+  display: block
+  text-intent: -9999px
+  width: 200px
+  height: 200px
+  top: 50%
+  left: 50%
+  margin: -100px 0 0 -100px
+  background: url('./content/images/logo.svg')
+  background-size: 200px 200px
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)
+    width: 400px
+    height: 400px
+    margin: -200px 0 0 -200px
+    background-size: 400px 400px
+
+#app
+  position: absolute
+  top: 50%
+  left: 50%
+  width: 500px
+  height: 500px
+  margin: -250px 0 0 -250px
+  background-color: black
+

@@ -1,0 +1,16 @@
+doctype html
+html
+  head
+    title= pageTitle
+    link(rel='stylesheet', href='main.css')
+    script(id="external_script" type="text/JavaScript")
+
+  body
+    #container
+      #splash.logo
+        
+    script
+      :coffee
+        window.setTimeout (->
+          document.getElementById('external_script').setAttribute 'src', 'main.js'
+          ),2500

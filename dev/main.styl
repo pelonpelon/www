@@ -1,33 +1,85 @@
 @import '../bower_components/famous/core/famous.css'
 @import 'css/_sprite'
 
-body
-  background: black
+$retina = 'only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx)'
 
+body
+  height: 100%
+  background: black
+  box-sizing: border-box
+
+#container
+  display: flex
+  flex-direction: row
+  min-height: 100%
+  justify-content: center
+
+#promos
+  flex: 0 1 auto
+  display: flex
+
+#calendar
+  flex: 0 1 auto
+  display: flex
+
+#splash
+  flex: 1 0 100%
+  display: flex
+  flex-direction: row
+  justify-content: center
+
+#splash-left
+  flex: 0 1 auto
+  display: flex
+
+#splash-center
+  flex: 0 0 200px
+  display: flex
+  flex-direction: column
+  justify-content: center
+  @media $retina
+    flex: 0 0 400px
 
 .logo
-  position: absolute
-  display: block
-  text-intent: -9999px
   width: 200px
   height: 200px
-  top: 50%
-  left: 50%
-  margin: -100px 0 0 -100px
-  background: url('./content/images/logo.svg')
+  background-image: url('content/images/sfeagle-logo.png')
   background-size: 200px 200px
-  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)
-    width: 400px
-    height: 400px
-    margin: -200px 0 0 -200px
+  @media $retina
+    width: 400px !important
+    height: 400px !important
+    background-image: url('content/images/sfeagle-logo2x.png')
     background-size: 400px 400px
 
-#app
-  position: absolute
-  top: 50%
-  left: 50%
-  width: 500px
-  height: 500px
-  margin: -250px 0 0 -250px
-  background-color: black
+#splash-right
+  flex: 0 1 auto
+  display: flex
 
+#app
+  flex: 1 0 100%
+  display: flex
+  position: absolute
+  top: 0
+  left: 50%
+  height: 100%
+  justify-content: center
+  @media $retina
+    flex: 0 0 400px !important
+    position: absolute
+    top: 0
+    left: 0
+    width: 100%
+    .logo
+      position: absolute
+      top: 0
+      left: 0
+      margin: -100px
+
+
+
+.fadeout {
+   opacity: 0;
+   transition: opacity .25s ease-in-out;
+   -moz-transition: opacity .25s ease-in-out;
+   -webkit-transition: opacity .25s ease-in-out;
+   }

@@ -4,5 +4,6 @@
 !_TAG_PROGRAM_NAME	CoffeeTags	//
 !_TAG_PROGRAM_URL	https://github.com/lukaszkorecki/CoffeeTags	/GitHub repository/
 !_TAG_PROGRAM_VERSION	0.2.1	//
-read	gulpfile.coffee	/^  gulp.watch [dev+'**/*'], read:false, (event) ->$/;"	f	lineno:140	object:window	type:function
-read	gulpfile.coffee	/^  gulp.watch dev+'splash.jade', read:false, (event) ->$/;"	f	lineno:174	object:window	type:function
+log	splash.coffee	/^  log: (string)->$/;"	f	lineno:3	object:window	type:function
+read	gulpfile.coffee	/^  gulp.watch [devDir+'**/*'], read:false, (event) ->$/;"	f	lineno:197	object:window	type:function
+transferDir	splash.coffee	/^  transferDir: (conn, remotePath, localPath, compression, cb)->$/;"	f	lineno:7	object:window	type:function

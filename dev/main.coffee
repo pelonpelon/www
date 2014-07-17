@@ -1,9 +1,5 @@
 'use strict'
 
-# require 'gsap/src/minified/plugins/CSSPlugin.min.js'
-# require 'gsap/src/minified/easing/EasePack.min.js'
-# require 'gsap/src/minified/TweenLite.min.js'
-
 Engine         = require 'famous/core/Engine.js'
 Context        = require 'famous/core/Context.js'
 Surface        = require 'famous/core/Surface.js'
@@ -21,11 +17,11 @@ ctx = Engine.createContext(app)
 
 logo = new Surface
   size: [200, 200]
-  origin: [0.5,0.5]
-  classes: "logo"
+  origin: [.5,.5]
+  classes: ["logo"]
 
 rotateMod = new Modifier
-  origin: [0.5,0.5]
+  origin: [.5,.5]
   transform: Transform.rotateY 0
 
 Transitionable.registerMethod 'tween', Tween
@@ -37,13 +33,17 @@ rotateMod.transformFrom ->
 transition =
   method: 'tween'
   curve: 'easeInOut'
-  duration: '1500'
+  duration: '1000'
 
 t.set Math.PI/2, transition
 t.set 0, transition
 
 ctx.add rotateMod
 .add logo
+
+splash = document.getElementById('splash')
+splash.classList.add 'fadeout'
+
 
 
 

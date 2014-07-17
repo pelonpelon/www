@@ -1,0 +1,30 @@
+{
+  "name": "polymous",
+  "version": "0.0.0",
+  "homepage": "https://github.com/pelonpelon/polymous",
+  "authors": [
+    "pelonpelon <github@xlfag.com>"
+  ],
+  "description": "Famo.us+Polymer+Meteor+Gulp",
+  "main": "main.js",
+  "keywords": [
+    "famo.us",
+    "polymer",
+    "meteor",
+    "gulp",
+    "splash",
+    "remote"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "famous": "~0.2.2"
+  }
+}

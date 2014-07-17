@@ -3,14 +3,32 @@ html
   head
     title= pageTitle
     link(rel='stylesheet', href='main.css')
-    script(id="external_script" type="text/JavaScript")
+    script(id="custom-elements" type="text/JavaScript")
+    script(id="main" type="text/JavaScript")
 
   body
     #container
-      #splash.logo
-        
+      #promos
+      #splash
+        #splash-left
+        #splash-center
+          .logo
+        #splash-right
+      #calendar
+
+    //- window.setTimeout (->
+      //- document.getElementById('external_script').setAttribute 'src', 'lib/custom-elements.min.js'
+      //- ),1000
+
+
     script
       :coffee
-        window.setTimeout (->
-          document.getElementById('external_script').setAttribute 'src', 'main.js'
-          ),2500
+        #document.getElementById('custom-elements').setAttribute 'src', 'lib/custom-elements.min.js'
+        #if window.CustomElements
+        #  console.log "yes from if"
+        #testCE = Object.create HTMLElement.prototype
+        #try
+        #  document.registerElement 'test-CE', prototype: testCE
+        #catch
+        #  alert "no from try"
+        document.getElementById('main').setAttribute 'src', 'main.js'

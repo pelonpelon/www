@@ -1,0 +1,8 @@
+/node_modules
+/bower_components
+npm-debug.log
+.config
+.vimsession
+Session.vim
+.DS_Store
+

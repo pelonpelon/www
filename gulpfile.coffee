@@ -5,13 +5,14 @@ gulpif      = require 'gulp-if'
 gutil       = require 'gulp-util'
 colors      = gutil.colors
 path        = require 'path'
+prepend     = require 'prepend-file'
 gp          = (require 'gulp-load-plugins') lazy: false, camelize: true
+through     = require 'through'
 source      = require 'vinyl-source-stream'
 runSequence = require 'run-sequence'
-ncp         = require 'ncp'
 rsync       = require('rsyncwrapper').rsync
 browserify  = require 'browserify'
-sprites     = require('css-sprite').stream
+sprite     = require('css-sprite').stream
 # log=gutil.log
 
 # Splash
@@ -40,6 +41,8 @@ gulp.task 'jade', ->
       locals:
         pageTitle: config.pageTitle || 'Splash'
     )
+    .pipe gulpif(env == 'development', gp.changed buildDir)
+    .pipe gulpif(env == 'production', gp.changed prodDir)
     .pipe gulpif(env == 'development', gulp.dest buildDir)
     .pipe gulpif(env == 'production', gulp.dest prodDir)
 
@@ -52,6 +55,8 @@ gulp.task 'coffee', ->
       extensions: ['.coffee']
     .pipe gulpif env == 'production', gp.uglify()
     .pipe gp.rename 'main.js'
+    .pipe gulpif(env == 'development', gp.changed buildDir)
+    .pipe gulpif(env == 'production', gp.changed prodDir)
     .pipe gulpif(env == 'development', gulp.dest buildDir)
     .pipe gulpif(env == 'production', gulp.dest prodDir)
 
@@ -73,6 +78,8 @@ gulp.task 'stylus', ->
       'include css': true
       errors: true
     .pipe gp.autoprefixer 'last 1 version'
+    .pipe gulpif(env == 'development', gp.changed buildDir)
+    .pipe gulpif(env == 'production', gp.changed prodDir)
     .pipe gulpif(env == 'development', gulp.dest buildDir)
     .pipe gulpif(env == 'production', gulp.dest prodDir)
 
@@ -87,37 +94,39 @@ gulp.task 'stylus', ->
 #      dest: buildDir
 #    .pipe gulp.dest buildDir
 
-# Images
-gulp.task 'img', (cb)->
-  gulp.src [devDir+'content/images/*.jpg',
-           devDir+'content/images/*.jpeg',
-           devDir+'content/images/*.png',
-           devDir+'content/images/*.svg',
-           devDir+'content/images/*.gif']
-    .pipe gulpif(env == 'development', gp.changed buildDir+'content/images')
-    .pipe gulpif(env == 'production', gp.changed buildDir+'content/images')
-    .pipe gp.cache gp.imagemin
-      optimizationLevel: 3
-      progressive: true
-      interlaced: true
-    .pipe gulpif(env == 'development', gulp.dest buildDir+'content/images')
-    .pipe gulpif(env == 'production', gulp.dest prodDir+'content/images')
+# Make Sprite
+gulp.task 'mksprite', (cb)->
   gulp.src devDir+'content/spritesrc/*.png'
-    .pipe sprites({
+    .pipe sprite
       name: 'sprite.png'
       style: '_sprite.styl'
-      cssPath: './content/images'
+      cssPath: '../content/images'
       processor: 'stylus'
-    })
+    .pipe gp.tap (file, t)->
+      if path.extname(file.path) == '.styl'
+        prepend devDir+'main.styl', '@import "css/*"\n', (done)->
+          if done
+            log done + ': @import css/* prepended to main.styl'
+    .pipe gulpif('*.styl', gulp.dest devDir+'css')
+    .pipe gulpif('*.styl', gp.ignore.exclude '*.styl')
+    .pipe gulpif(env == 'development', gp.changed buildDir+'content/images')
+    .pipe gulpif(env == 'production', gp.changed prodDir+'content/images')
+    .pipe gulpif(env == 'development', gulp.dest buildDir+'content/images')
+    .pipe gulpif(env == 'production', gulp.dest prodDir+'content/images')
+  cb()
+
+# Images
+gulp.task 'img', ['mksprite'], (cb)->
+  gulp.src [devDir+'content/images/**/*.{jpg,jpeg,png,svg,gif}'], base: devDir+'content/images'
     .pipe gp.cache gp.imagemin
       optimizationLevel: 3
       progressive: true
       interlaced: true
-    .pipe gulpif '*.styl', gulp.dest devDir+'css'
-    .pipe gp.ignore.exclude '*.styl'
+    .pipe gulpif(env == 'development', gp.changed buildDir+'content/images')
+    .pipe gulpif(env == 'production', gp.changed prodDir+'content/images')
     .pipe gulpif(env == 'development', gulp.dest buildDir+'content/images')
     .pipe gulpif(env == 'production', gulp.dest prodDir+'content/images')
-    runSequence 'stylus', cb
+  cb()
 
 # copy libs
 gulp.task 'copylibs', ->
@@ -128,34 +137,29 @@ gulp.task 'copylibs', ->
     .pipe gulpif(env == 'production', gulp.dest prodDir+'lib')
 
 # Clean
-gulp.task 'clean', (cb)->
+gulp.task 'clean', ->
   gulp.src [buildDir, prodDir, 'tmp'], read: false
     .pipe gp.clean force: true
-    log "ALL CLEAN"
-  cb()
 
 # Build
-gulp.task 'build', ['copylibs', 'jade', 'coffee'], (cb)->
-  runSequence 'img', 'stylus', cb
+gulp.task 'build', ['splash', 'clean'], (cb)->
+  runSequence ['copylibs', 'jade', 'coffee'], 'img', 'stylus', cb
 
 # Dist
-gulp.task 'dist', ['splash', 'clean'], (cb)->
+gulp.task 'dist', (cb)->
+  env = 'production'
   runSequence 'build'
-  gulp.src [buildDir+'**/*.*']
-    .pipe gp.foreach (stream,file)->
-      return stream
-        .pipe gulp.dest prodDir
   cb()
 
 # Upload to server
-gulp.task 'upload', (callback)->
-  gulp.src prodDir+'/**/*',
-    baseUrl: './'
-    buffer: false
-  .pipe gp.sftp
-    host: config.host
-    username: config.username
-    remotePath: config.remotePath
+#gulp.task 'upload', (callback)->
+#  gulp.src prodDir+'/**/*',
+#    baseUrl: './'
+#    buffer: false
+#  .pipe gp.sftp
+#    host: config.host
+#    username: config.username
+#    remotePath: config.remotePath
 
 gulp.task 'rsync', ->
   rsync
@@ -169,8 +173,8 @@ gulp.task 'rsync', ->
       gutil.log stdout
 
 # Default task
-gulp.task 'default', ['splash', 'clean'], (cb)->
-  runSequence 'build', 'watch', 'connect', cb
+gulp.task 'default', ['build'], (cb)->
+  runSequence 'watch', cb
 
 # Connect
 gulp.task 'connect', ->
@@ -193,7 +197,7 @@ gulp.task 'livereload', ->
   gulp.watch(devDir+'**').on 'change', livereload.changed
 
 # Watch
-gulp.task 'watch', ->
+gulp.task 'watch', ['connect'], ->
   gulp.watch [devDir+'**/*'], read:false, (event) ->
     ext = path.extname event.path
     taskname = null

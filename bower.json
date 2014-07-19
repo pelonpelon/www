@@ -25,6 +25,13 @@
     "tests"
   ],
   "dependencies": {
+    "CustomElements": "~0.2.4",
+    "polymer": "~0.3.3",
     "famous": "~0.2.2"
+  },
+  "moduleType": [
+    "amd"
+  ],
+  "devDependencies": {
   }
 }

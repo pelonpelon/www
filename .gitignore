@@ -1,8 +1,9 @@
 /node_modules
 /bower_components
+/build
 npm-debug.log
 .config
 .vimsession
 Session.vim
 .DS_Store
-
+tags

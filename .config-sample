@@ -1,0 +1,9 @@
+module.exports =
+{
+project: 'myProject',
+host: 'myDomain.com',
+port: '22',
+username: 'sftpUserName',
+remotePath: '/complete/path/on/server',
+password: 'myPassword'
+}

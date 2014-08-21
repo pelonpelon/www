@@ -3,44 +3,64 @@
 gulp        = require 'gulp'
 gulpif      = require 'gulp-if'
 gutil       = require 'gulp-util'
+cat         = require 'gulp-cat'
 colors      = gutil.colors
 path        = require 'path'
 prepend     = require 'prepend-file'
 gp          = (require 'gulp-load-plugins') lazy: false, camelize: true
 through     = require 'through'
-source      = require 'vinyl-source-stream'
+src      = require 'vinyl-source-stream'
 runSequence = require 'run-sequence'
 rsync       = require('rsyncwrapper').rsync
 browserify  = require 'browserify'
+coffee      = require 'gulp-coffee'
+stylus      = require 'gulp-stylus'
 sprite     = require('css-sprite').stream
-# log=gutil.log
-
-# Splash
-gulp.task 'splash', ->
-  gulp.src './splash.coffee'
-    .pipe gp.changed './'
-    .pipe gp.coffee()
-    .pipe gp.rename 'splash.js'
-    .pipe gulp.dest './'
-gulp.start 'splash'
-splash      = require './splash.js'
-log         = splash.log
-# Splash config file
-config      = require './.config'
+log=gutil.log
 
 env = process.env.NODE_ENV || 'development'
+config      = require './.config'
 devDir = config.devDir || 'dev/'
+splashDir = devDir+'splash/'
 buildDir = config.buildDir || 'build/development/'
 prodDir = config.prodDir || 'build/production/'
 
+# Splash
+gulp.task 'splash-stylus', ->
+  gulp.src splashDir+'splash.styl'
+    .pipe stylus(
+      'include css': true
+      errors: true
+    )
+    .pipe gp.autoprefixer '> 1%', 'last 6 version', 'ff 17', 'opera 12.1', 'ios >= 5'
+    .pipe gulp.dest splashDir
+gulp.task 'splash-coffee', ->
+  gulp.src splashDir+'splash.coffee'
+    .pipe coffee(
+      bare:true
+    )
+    .pipe gulp.dest splashDir
+gulp.task 'splash-jade', ->
+  gulp.src splashDir+'splash.jade'
+    .pipe gp.jade(
+      locals:
+        pageTitle: 'Splash'
+    )
+    .pipe gp.rename 'index.html'
+    .pipe gulp.dest buildDir
+
+gulp.task 'splash', (cb)->
+  runSequence ['splash-stylus', 'splash-coffee'], 'splash-jade', cb
+
 # jade
 gulp.task 'jade', ->
-  gulp.src devDir+'index.jade', base: devDir
+  gulp.src devDir+'main.jade', base: devDir
     .pipe gp.plumber()
     .pipe gp.jade(
       locals:
-        pageTitle: config.pageTitle || 'Splash'
+        pageTitle: config.pageTitle || 'MyApp'
     )
+    .pipe gp.rename 'main.html'
     .pipe gulpif(env == 'development', gp.changed buildDir)
     .pipe gulpif(env == 'production', gp.changed prodDir)
     .pipe gulpif(env == 'development', gulp.dest buildDir)
@@ -77,7 +97,7 @@ gulp.task 'stylus', ->
     .pipe gp.stylus
       'include css': true
       errors: true
-    .pipe gp.autoprefixer 'last 1 version'
+    .pipe gp.autoprefixer '> 1%', 'last 6 version', 'ff 17', 'opera 12.1', 'ios >= 5'
     .pipe gulpif(env == 'development', gp.changed buildDir)
     .pipe gulpif(env == 'production', gp.changed prodDir)
     .pipe gulpif(env == 'development', gulp.dest buildDir)
@@ -142,8 +162,8 @@ gulp.task 'clean', ->
     .pipe gp.clean force: true
 
 # Build
-gulp.task 'build', ['splash', 'clean'], (cb)->
-  runSequence ['copylibs', 'jade', 'coffee'], 'img', 'stylus', cb
+gulp.task 'build', ['clean'], (cb)->
+  runSequence ['splash', 'copylibs', 'jade', 'coffee'], 'img', 'stylus', cb
 
 # Dist
 gulp.task 'dist', (cb)->
@@ -178,6 +198,7 @@ gulp.task 'default', ['build'], (cb)->
 
 # Connect
 gulp.task 'connect', ->
+  log 'task: connect'
   gp.connect.server
     root: buildDir
     port: 9000
@@ -193,28 +214,71 @@ gulp.task 'webserver', ->
 
 # livereload
 gulp.task 'livereload', ->
+  log "task: livereload"
   livereload.listen()
   gulp.watch(devDir+'**').on 'change', livereload.changed
 
 # Watch
 gulp.task 'watch', ['connect'], ->
   gulp.watch [devDir+'**/*'], read:false, (event) ->
+    fullpath = event.path
+    dir = (path.dirname event.path).match(/([^\/]*)\/*$/)[1]
+    file = path.basename event.path
     ext = path.extname event.path
+    log 'path: '+fullpath
+    log 'dir: '+dir
+    log 'file: '+file
+    log 'ext: '+ext
+    if (path.basename event.path).match(/_.*$/)
+      log 'watch: skipping '+file
+      return
     taskname = null
     reloadasset = null
-    switch ext
-      when '.jade'
-        taskname = 'jade'
-        reloadasset = buildDir+'index.html'
-      when '.styl'
-        taskname = 'stylus'
-        reloadasset = buildDir+'main.css'
-      when '.coffee', '.js'
-        taskname = 'coffee'
-        reloadasset = buildDir+'main.js'
-      else
-        taskname = 'img'
-        reloadasset = buildDir+"images/#{path.basename event.path}"
+    if dir is 'splash'
+      log 'splash changes'
+      switch ext
+        when '.css', '.js', '.html'
+          log 'watch: skipping '+file
+          return
+        when '.jade'
+          taskname = 'splash'
+          reloadasset = buildDir+'index.html'
+          log "calling task: splash-jade"
+        when '.styl'
+          taskname = 'splash'
+          reloadasset = splashDir+'splash.css'
+          log "calling task: splash-styl"
+        when '.coffee'
+          taskname = 'splash'
+          reloadasset = splashDir+'splash.js'
+          log "calling task: splash-coffee"
+        when '.jpg', '.jpeg', '.png', '.gif'
+          taskname = 'img'
+          reloadasset = splashDir+"images/#{path.basename event.path}"
+          log "calling task: img"
+        else
+          return
+    else
+      log 'dev changes'
+      switch ext
+        when '.css', '.js', '.html'
+          log 'watch: skipping '+file
+          return
+        when '.jade'
+          taskname = 'jade'
+          reloadasset = buildDir+'main.html'
+        when '.styl'
+          taskname = 'stylus'
+          reloadasset = buildDir+'main.css'
+        when '.coffee', '.js'
+          taskname = 'coffee'
+          reloadasset = buildDir+'main.js'
+        when '.jpg', '.jpeg', '.png', '.gif'
+          taskname = 'img'
+          reloadasset = splashDir+"images/#{path.basename event.path}"
+          log "calling task: img"
+        else
+          return
     gulp.task 'reload', [taskname], ->
       gulp.src reloadasset
         .pipe gp.connect.reload()

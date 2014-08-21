@@ -1,0 +1,109 @@
+// _sprite.style will be imported if there are images in content/spritesrc
+
+$retina = 'only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx)'
+
+body
+  margin: 0
+  padding: 0
+  min-height: 100%
+  background: yellow
+  box-sizing: border-box
+  color: white
+
+#container
+  position: absolute
+  height: 100%
+  width: 100%
+  animation-name: splash
+  animation-duration: 0.5s
+  animation-timing-function: linear
+  animation-delay: 0.2s
+  animation-play-state: running
+
+// .main
+  // opacity: 1
+
+@keyframes splash
+  0%
+    opacity: 0
+  100%
+    opacity: 1
+
+.splash
+  display: flex
+  flex-flow: row wrap
+  height: 100%
+  text-align: center
+  background-color: yellow
+
+.splash > *
+  flex: 1 100%
+  padding: 10px
+
+.aside
+  flex: 1 auto
+.content
+  flex: 0 auto
+.aside-1
+  order: 1
+.content
+  order: 2
+.aside-2
+  order: 3
+.footer
+  order: 4
+
+.header
+  background-color: red
+
+.aside-1
+  background-color: blue
+
+.content
+  background-color: black
+  @media $retina
+    // flex: 0 0 400px
+
+.logo
+  width: 200px
+  height: 200px
+  background-image: url('content/images/sfeagle-logo.png')
+  background-size: 200px 200px
+  @media $retina
+    width: 400px !important
+    height: 400px !important
+    background-image: url('content/images/sfeagle-logo2x.png')
+    background-size: 400px 400px
+
+.aside-2
+  background-color: green
+
+.footer
+  background-color: orange
+
+.app
+  flex: 1 0 100%
+  display: flex
+  position: absolute
+  top: 0
+  left: 50%
+  height: 100%
+  justify-content: center
+  @media $retina
+    flex: 0 0 400px !important
+    position: absolute
+    top: 0
+    left: 0
+    width: 100%
+    .logo
+      position: absolute
+      top: 0
+      left: 0
+      margin: -100px
+
+.fadeout {
+   opacity: 0;
+   transition: opacity .25s ease-in-out;
+   -moz-transition: opacity .25s ease-in-out;
+   -webkit-transition: opacity .25s ease-in-out;
+   }

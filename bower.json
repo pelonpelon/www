@@ -8,9 +8,6 @@
   "description": "Famo.us+Polymer+Meteor+Gulp",
   "main": "main.js",
   "keywords": [
-    "famo.us",
-    "polymer",
-    "meteor",
     "gulp",
     "splash",
     "remote"
@@ -24,14 +21,12 @@
     "test",
     "tests"
   ],
-  "dependencies": {
-    "CustomElements": "~0.2.4",
-    "polymer": "~0.3.3",
-    "famous": "~0.2.2"
-  },
+  "dependencies": {},
   "moduleType": [
     "amd"
   ],
   "devDependencies": {
+    "gsap": "~1.13.1",
+    "requirejs": "~2.1.14"
   }
 }

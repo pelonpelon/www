@@ -33,13 +33,19 @@ gulp.task 'splash-stylus', ->
       errors: true
     )
     .pipe gp.autoprefixer '> 1%', 'last 6 version', 'ff 17', 'opera 12.1', 'ios >= 5'
-    .pipe gulp.dest splashDir
+    .pipe gulpif(env == 'development', gp.changed buildDir+"splash")
+    .pipe gulpif(env == 'production', gp.changed prodDir+"splash")
+    .pipe gulpif(env == 'development', gulp.dest buildDir+"splash")
+    .pipe gulpif(env == 'production', gulp.dest prodDir+"splash")
 gulp.task 'splash-coffee', ->
   gulp.src splashDir+'splash.coffee'
     .pipe coffee(
       bare:true
     )
-    .pipe gulp.dest splashDir
+    .pipe gulpif(env == 'development', gp.changed buildDir+"splash")
+    .pipe gulpif(env == 'production', gp.changed prodDir+"splash")
+    .pipe gulpif(env == 'development', gulp.dest buildDir+"splash")
+    .pipe gulpif(env == 'production', gulp.dest prodDir+"splash")
 gulp.task 'splash-jade', ->
   gulp.src splashDir+'splash.jade'
     .pipe gp.jade(
@@ -47,7 +53,10 @@ gulp.task 'splash-jade', ->
         pageTitle: 'Splash'
     )
     .pipe gp.rename 'index.html'
-    .pipe gulp.dest buildDir
+    .pipe gulpif(env == 'development', gp.changed buildDir)
+    .pipe gulpif(env == 'production', gp.changed prodDir)
+    .pipe gulpif(env == 'development', gulp.dest buildDir)
+    .pipe gulpif(env == 'production', gulp.dest prodDir)
 
 gulp.task 'splash', (cb)->
   runSequence ['splash-stylus', 'splash-coffee'], 'splash-jade', cb
@@ -181,11 +190,26 @@ gulp.task 'dist', (cb)->
 #    username: config.username
 #    remotePath: config.remotePath
 
-gulp.task 'rsync', ->
+gulp.task 'rsynclab', ->
+  remotePath = config.labRemotePath
+  log remotePath
   rsync
     ssh: true
     src: prodDir
-    dest: 'sfeagleftp@sf-eagle.com:'+config.remotePath
+    dest: 'sfeagleftp@sf-eagle.com:'+remotePath
+    recursive: true
+    syncDest: true
+    args: ['--verbose']
+  , (error, stdout, stderr, cmd)->
+      gutil.log stdout
+
+gulp.task 'rsyncwww', ->
+  remotePath = config.wwwRemotePath
+  log remotePath
+  rsync
+    ssh: true
+    src: prodDir
+    dest: 'sfeagleftp@sf-eagle.com:'+remotePath
     recursive: true
     syncDest: true
     args: ['--verbose']

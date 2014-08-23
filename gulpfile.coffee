@@ -50,7 +50,7 @@ gulp.task 'splash-jade', ->
   gulp.src splashDir+'splash.jade'
     .pipe gp.jade(
       locals:
-        pageTitle: 'Splash'
+        pageTitle: config.pageTitle || 'MyApp'
     )
     .pipe gp.rename 'index.html'
     .pipe gulpif(env == 'development', gp.changed buildDir)

@@ -31,6 +31,10 @@ cb = ->
   element.src = "main.js"
   document.body.appendChild element
 
+  element = document.createElement "link"
+  element.href = "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"
+  element.rel = "stylesheet"
+  document.head.appendChild element
 
 if  window.addEventListener
   window.addEventListener "load", downloadJSAtOnload, false
@@ -41,4 +45,3 @@ else
 
 window.onload = ->
   console.log "splash.coffee loaded"
-

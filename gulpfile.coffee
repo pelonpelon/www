@@ -33,19 +33,13 @@ gulp.task 'splash-stylus', ->
       errors: true
     )
     .pipe gp.autoprefixer '> 1%', 'last 6 version', 'ff 17', 'opera 12.1', 'ios >= 5'
-    .pipe gulpif(env == 'development', gp.changed buildDir+"splash")
-    .pipe gulpif(env == 'production', gp.changed prodDir+"splash")
-    .pipe gulpif(env == 'development', gulp.dest buildDir+"splash")
-    .pipe gulpif(env == 'production', gulp.dest prodDir+"splash")
+    .pipe gulp.dest devDir+"splash"
 gulp.task 'splash-coffee', ->
   gulp.src splashDir+'splash.coffee'
     .pipe coffee(
       bare:true
     )
-    .pipe gulpif(env == 'development', gp.changed buildDir+"splash")
-    .pipe gulpif(env == 'production', gp.changed prodDir+"splash")
-    .pipe gulpif(env == 'development', gulp.dest buildDir+"splash")
-    .pipe gulpif(env == 'production', gulp.dest prodDir+"splash")
+    .pipe gulp.dest devDir+"splash"
 gulp.task 'splash-jade', ->
   gulp.src splashDir+'splash.jade'
     .pipe gp.jade(

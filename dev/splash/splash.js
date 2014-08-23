@@ -33,7 +33,11 @@ cb = function() {
   container.load("main.html");
   element = document.createElement("script");
   element.src = "main.js";
-  return document.body.appendChild(element);
+  document.body.appendChild(element);
+  element = document.createElement("link");
+  element.href = "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css";
+  element.rel = "stylesheet";
+  return document.head.appendChild(element);
 };
 
 if (window.addEventListener) {

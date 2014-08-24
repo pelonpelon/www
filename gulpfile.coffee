@@ -252,19 +252,20 @@ gulp.task 'watch', ['connect'], ->
           # log 'watch: skipping '+file
           # return
         when '.jade'
-          taskname = 'splash'
+          task1 = 'splash'
           reloadasset = buildDir+'index.html'
           log "calling task: splash-jade"
         when '.styl'
-          taskname = 'splash'
+          task1 = 'splash'
+          task2 = 'stylus'
           reloadasset = "[splashDir+'splash.css', buildDir+'main.css']"
           log "calling task: splash-styl"
         when '.coffee'
-          taskname = 'splash'
+          task1 = 'splash'
           reloadasset = "[splashDir+'splash.js', buildDir+'main.js']"
           log "calling task: splash-coffee"
         when '.jpg', '.jpeg', '.png', '.gif'
-          taskname = 'img'
+          task1 = 'img'
           reloadasset = splashDir+"images/#{path.basename event.path}"
           log "calling task: img"
         else
@@ -276,21 +277,22 @@ gulp.task 'watch', ['connect'], ->
           # log 'watch: skipping '+file
           # return
         when '.jade'
-          taskname = 'jade'
+          task1 = 'jade'
           reloadasset = buildDir+'main.html'
         when '.styl'
-          taskname = 'stylus'
+          task1 = 'stylus'
           reloadasset = buildDir+'main.css'
         when '.coffee', '.js'
-          taskname = 'coffee'
+          task1 = 'coffee'
           reloadasset = buildDir+'main.js'
         when '.jpg', '.jpeg', '.png', '.gif'
-          taskname = 'img'
+          task1 = 'img'
           reloadasset = splashDir+"images/#{path.basename event.path}"
           log "calling task: img"
         else
           return
-    gulp.task 'reload', [taskname], ->
+    gulp.task 'reload', [task1], ->
+        runSequence task2
         log "reloading: "+reloadasset
       gulp.src reloadasset
         .pipe gp.connect.reload()

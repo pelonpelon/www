@@ -1,4 +1,11 @@
 console.log "main.js loaded"
+
+main = $('.main')
+main.find '.header'
+.css 'background-color', 'orange'
+.text "this is other text"
+main.css 'opacity', '1'
+
 # container = document.getElementById 'container'
 # # container.addEventListener "click", (evt)->
   # # console.log evt.target.id

@@ -4,5 +4,8 @@ html
     include _splash-head.jade
   body
     #container
-      include _splash-body.jade
-    include _splash-scripts.jade
+      .main
+      .splash
+        include _splash-body.jade
+        script
+          include:coffee splash.coffee

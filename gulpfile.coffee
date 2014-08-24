@@ -151,6 +151,9 @@ gulp.task 'copylibs', ->
   gulp.src [devDir+'lib/**/*.*'], base: devDir+'lib/'
     .pipe gulpif(gulp.env.development, gulp.dest buildDir+'lib')
     .pipe gulpif(!gulp.env.development, gulp.dest prodDir+'lib')
+  gulp.src [devDir+'components/**/*.*'], base: devDir+'components/'
+    .pipe gulpif(gulp.env.development, gulp.dest buildDir+'components')
+    .pipe gulpif(!gulp.env.development, gulp.dest prodDir+'components')
 
 # Clean
 gulp.task 'clean', ->

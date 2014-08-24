@@ -37,11 +37,11 @@ downloadJSAtOnload = function() {
   var element;
   console.log("inside dl");
   element = document.createElement("link");
-  element.href = "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css";
+  element.href = "lib/bootstrap.min.css";
   element.rel = "stylesheet";
   document.head.appendChild(element);
   element = document.createElement("script");
-  element.src = "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js";
+  element.src = "lib/jquery.min.js";
   document.body.appendChild(element);
   return defer(cb);
 };
@@ -56,7 +56,7 @@ cb = function() {
   element.rel = "stylesheet";
   document.head.appendChild(element);
   element = document.createElement("script");
-  element.src = "//cdnjs.cloudflare.com/ajax/libs/react/0.11.1/react.min.js";
+  element.src = "lib/react.min.js";
   document.body.appendChild(element);
   element = document.createElement("script");
   element.src = "lib/react-bootstrap.min.js";

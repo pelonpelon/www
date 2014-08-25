@@ -95,6 +95,20 @@ gulp.task 'coffee', ->
     .pipe gulpif(gulp.env.development, gulp.dest buildDir)
     .pipe gulpif(!gulp.env.development, gulp.dest prodDir)
 
+# React
+gulp.task 'react', ->
+  gulp.src devDir+'components/**/*.coffee'
+    .pipe coffee(
+      bare: true
+    ).on 'error', gutil.log
+    .pipe gp.rename
+      extname: ".jsx"
+    .pipe gulp.dest devDir+'components'
+  gulp.src devDir+'components/**/*.jsx', base: devDir
+    .pipe gp.react()
+    .pipe gulpif(gulp.env.development, gulp.dest buildDir)
+    .pipe gulpif(!gulp.env.development, gulp.dest prodDir)
+
 # stylus
 gulp.task 'stylus', ->
   gulp.src devDir+'main.styl', base: devDir
@@ -137,23 +151,20 @@ gulp.task 'mksprite', (cb)->
 
 # Images
 gulp.task 'img', ['mksprite'], (cb)->
-  gulp.src [devDir+'content/images/**/*.{jpg,jpeg,png,svg,gif}'], base: devDir+'content/images'
+  gulp.src [devDir+'content/images/**/*.{jpg,jpeg,png,svg,gif}'], base: devDir
     .pipe gp.cache gp.imagemin
       optimizationLevel: 3
       progressive: true
       interlaced: true
-    .pipe gulpif(gulp.env.development, gulp.dest buildDir+'content/images')
-    .pipe gulpif(!gulp.env.development, gulp.dest prodDir+'content/images')
+    .pipe gulpif(gulp.env.development, gulp.dest buildDir)
+    .pipe gulpif(!gulp.env.development, gulp.dest prodDir)
   cb()
 
 # copy libs
 gulp.task 'copylibs', ->
-  gulp.src [devDir+'lib/**/*.*'], base: devDir+'lib/'
-    .pipe gulpif(gulp.env.development, gulp.dest buildDir+'lib')
-    .pipe gulpif(!gulp.env.development, gulp.dest prodDir+'lib')
-  gulp.src [devDir+'components/**/*.*'], base: devDir+'components/'
-    .pipe gulpif(gulp.env.development, gulp.dest buildDir+'components')
-    .pipe gulpif(!gulp.env.development, gulp.dest prodDir+'components')
+  gulp.src [devDir+'lib/**/*.*'], base: devDir
+    .pipe gulpif(gulp.env.development, gulp.dest buildDir)
+    .pipe gulpif(!gulp.env.development, gulp.dest prodDir)
 
 # Clean
 gulp.task 'clean', ->
@@ -162,7 +173,7 @@ gulp.task 'clean', ->
 
 # Build
 gulp.task 'build', ['clean'], (cb)->
-  runSequence 'copylibs', 'img', 'splash', 'stylus', 'coffee', 'jade', cb
+  runSequence 'copylibs', 'img', 'splash', 'stylus', 'coffee', 'react', 'jade', cb
 
 # Dist
 gulp.task 'dist', (cb)->
@@ -238,18 +249,20 @@ gulp.task 'watch', ['connect'], ->
     fullpath = event.path
     dir = (path.dirname event.path).match(/([^\/]*)\/*$/)[1]
     file = path.basename event.path
+    if file is 'tags'
+      return
     ext = path.extname event.path
     log 'path: '+fullpath
-    log 'dir: '+dir
-    log 'file: '+file
-    log 'ext: '+ext
+    # log 'dir: '+dir
+    # log 'file: '+file
+    # log 'ext: '+ext
     if (path.basename event.path).match(/_.*$/)
       log 'watch: skipping '+file
       return
     taskname = null
     reloadasset = null
     if dir is 'splash'
-      log 'splash changes'
+      # log 'splash changes'
       switch ext
         # when '.css', '.js', '.html'
           # log 'watch: skipping '+file
@@ -274,20 +287,24 @@ gulp.task 'watch', ['connect'], ->
         else
           return
     else
-      log 'dev changes'
+      # log 'dev changes'
       switch ext
         # when '.css', '.js', '.html'
           # log 'watch: skipping '+file
           # return
         when '.jade'
           task1 = 'jade'
-          reloadasset = buildDir+'main.html'
+          reloadasset = buildDir+'index.html'
         when '.styl'
           task1 = 'stylus'
-          reloadasset = buildDir+'main.css'
+          reloadasset = buildDir+'index.html'
         when '.coffee', '.js'
           task1 = 'coffee'
-          reloadasset = buildDir+'main.js'
+          task2 = 'react'
+          reloadasset = buildDir+'index.html'
+        when '.jsx'
+          task1 = 'react'
+          reloadasset = buildDir+'index.html'
         when '.jpg', '.jpeg', '.png', '.gif'
           task1 = 'img'
           reloadasset = splashDir+"images/#{path.basename event.path}"
@@ -295,8 +312,9 @@ gulp.task 'watch', ['connect'], ->
         else
           return
     gulp.task 'reload', [task1], ->
+      if task2
         runSequence task2
-        log "reloading: "+reloadasset
+      log "reloading: "+reloadasset
       gulp.src reloadasset
         .pipe gp.connect.reload()
     gulp.start 'reload'

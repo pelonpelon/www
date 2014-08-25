@@ -50,7 +50,7 @@ downloadJSAtOnload = ->
 
 cb = ->
   console.log "inside cb"
-  
+
   main = $('.main')
   main.load "main.html"
 

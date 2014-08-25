@@ -61,6 +61,7 @@
     "through": "~2.3.4",
     "bootstrap": "~3.2.0",
     "gulp-cat": "~0.3.1",
-    "gulp-preprocess": "~1.1.1"
+    "gulp-preprocess": "~1.1.1",
+    "gulp-react": "~1.0.0"
   }
 }
